@@ -42,7 +42,7 @@ N_PARAMS = 7
 # The actual puzzles and param allocation will still be randomly generated.
 RANDOMISED_DIMENSIONS = False
 # Controls if you see the log printed out in terminal.
-VERBOSE = True
+VERBOSE = False
 # Controls if you want to log output to a file.
 OUTPUT_LOG = True
 
@@ -309,8 +309,8 @@ def valid_base(arr):
     :arr: the incomplete puzzle (inner values only) to test
     """
 
-    unique_row = all([len(set(x)) == 3 for x in arr])
-    unique_col = all([len(set(x)) == 3 for x in np.transpose(arr)])
+    unique_row = all([len(set(x)) == len(x) for x in arr])
+    unique_col = all([len(set(x)) == len(x) for x in np.transpose(arr)])
     good_vals = all(np.vectorize(lambda x: 0 < x < 10)(arr.flatten())) 
     unique_diag = (1 == len(set(np.diag(arr))))
     return unique_row and unique_col and good_vals and unique_diag
