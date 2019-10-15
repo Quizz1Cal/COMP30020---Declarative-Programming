@@ -26,11 +26,10 @@ import random as rand
 import pyswip as swi
 import datetime as dt
 import os
-import re
 import time
 
 SEED = 1337
-N_TESTS = 50
+N_TESTS = 100
 TIMEOUT = 20
 TIME_ACCURACY = 2
 
@@ -40,9 +39,11 @@ N_PARAMS = 7
 
 # Adjust this if you want to use SIZE, N_PARAMS for entire suite. 
 # The actual puzzles and param allocation will still be randomly generated.
-RANDOMISED_DIMENSIONS = False
+RANDOMISED_DIMENSIONS = True
 # Controls if you see the log printed out in terminal.
-VERBOSE = False
+VERBOSE = True
+# Controls if you want linear verification display or array-like.
+PRETTY_CHECK = True
 # Controls if you want to log output to a file.
 OUTPUT_LOG = True
 
@@ -160,7 +161,7 @@ def run_test(array_puzzle, logger):
     # String format to cohere with Prolog
     puzzle = str(array_puzzle.tolist()).replace("'","")
     
-    logger.print(f"Test {1+logger.log_len}\t{puzzle}", coerce=True)
+    logger.print(f"Test {1+logger.log_len:4d} {puzzle}", coerce=True)
 
     # Run test
     timeStarted = time.time()
@@ -273,15 +274,18 @@ def valid_soln(puzzle, assigns, logger):
     :logger: Logger instance
     """
 
-    # Printing
-    str_assigns = ', '.join(map(lambda k: f"{k} = {assigns[k]}",sorted(assigns)))
-    logger.print(f">> Verifying that {str_assigns}")
-
     # Replace values. Sort assigns to prevent X1 replacing in X11
     answer = puzzle.copy()
     for v in assigns:
         answer = np.where(answer==v,assigns[v],answer)
     answer = answer.astype(int)
+
+    # Display message
+    if PRETTY_CHECK:
+        logger.print(f">> Verifying solution\n{answer}")
+    else:
+        str_assigns = ', '.join(map(lambda k: f"{k} = {assigns[k]}",sorted(assigns)))
+        logger.print(f">> Verifying that {str_assigns}")
 
     # Verify internals, then sum/product relationships
     if valid_base(answer[1:,1:]):
